@@ -3,6 +3,7 @@ package scrapers
 import (
 	"log/slog"
 	"strings"
+	"time"
 
 	"github.com/gocolly/colly"
 	"github.com/jwhenry28/MediaCurator/model"
@@ -59,7 +60,7 @@ func (s *EDGARFilingsScraper) initialize() {
 
 			// Check filing date first (5th column)
 			filingDate := e.ChildText("td:nth-child(5)")
-			if filingDate == "" || filingDate != "2025-02-14" /*time.Now().Format("2006-01-02")*/ {
+			if filingDate == "" || filingDate != time.Now().Format("2006-01-02") {
 				return
 			}
 

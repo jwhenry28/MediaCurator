@@ -22,6 +22,9 @@ the title alone.
 When you have finished analyzing each article, report your decisions with the "complete" tool:
 %s
 
+If I provide with you empty content, that means my scrapers did not retrieve anything. In this situation, 
+please report the associated URL as "IGNORE" in your response.
+
 %s
 `
 
