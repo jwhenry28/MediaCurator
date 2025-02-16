@@ -25,15 +25,6 @@ const (
 	TOOL_TYPE        = model.JSON_TOOL_TYPE
 )
 
-type ScraperConstructor func(string) (scrapers.Scraper, error)
-
-var ScrapersRegistry = map[string]ScraperConstructor{
-	"news.ycombinator.com": scrapers.NewHackerNewsScraper,
-	"arxiv.org":            scrapers.NewArxivScraper,
-	"nautil.us":            scrapers.NewNautilusScraper,
-	"medium.com":           scrapers.NewMediumScraper,
-}
-
 type Curator struct {
 	fm        utils.FileManager
 	seeds     []string
@@ -54,7 +45,7 @@ func NewCurator(llm llm.LLM, profile *localmodel.Profile) *Curator {
 	}
 
 	c.registerTools()
-	c.loadSeeds()
+	c.loadSeeds(profile)
 	c.loadScrapers()
 
 	return &c
@@ -70,7 +61,12 @@ func (c *Curator) registerTools() {
 	tools.RegisterTool("complete", local.NewComplete)
 }
 
-func (c *Curator) loadSeeds() {
+func (c *Curator) loadSeeds(profile *localmodel.Profile) {
+	if len(profile.URLs) > 0 {
+		c.seeds = profile.URLs
+		return
+	}
+
 	lines := strings.Split(c.fm.Read(SEEDS_FILE), "\n")
 	seeds := []string{}
 	for _, url := range lines {
@@ -107,8 +103,8 @@ func (c *Curator) getOrCreateScraper(seed string) (scrapers.Scraper, error) {
 	return scraper, nil
 }
 
-func (c *Curator) getScraperConstructor(seed string) ScraperConstructor {
-	constructor, ok := ScrapersRegistry[c.formatSeed(seed)]
+func (c *Curator) getScraperConstructor(seed string) scrapers.ScraperConstructor {
+	constructor, ok := scrapers.ScrapersRegistry[c.formatSeed(seed)]
 	if !ok {
 		constructor = scrapers.NewDefaultScraper
 	}
@@ -144,7 +140,7 @@ func (c *Curator) Curate() {
 
 func (c *Curator) runLLMSession(seed string) {
 	scraper := c.scrapeSeed(seed)
-	slog.Info("processing seed", "seed", seed, "anchors", len(scraper.GetAnchors()))
+	slog.Info("processing seed", "seed", seed, "scraper", fmt.Sprintf("%T", scraper), "anchors", len(scraper.GetAnchors()))
 
 	messages, err := c.generateInitialMessages(scraper)
 	if err != nil {

@@ -10,6 +10,8 @@ import (
 	"golang.org/x/net/publicsuffix"
 )
 
+const USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_2) AppleWebKit/601.3.9 (KHTML, like Gecko) Version/9.0.2 Safari/601.3.9"
+
 type Scraper interface {
 	Scrape()
 	SetTransport(http.RoundTripper)
@@ -60,7 +62,7 @@ func formatURL(url string) string {
 }
 
 func (s *BaseScraper) GetURL() string {
-	return s.url.Scheme + "://" + s.url.Hostname() + s.url.Path
+	return s.url.String()
 }
 
 func (s *BaseScraper) GetHostname() string {

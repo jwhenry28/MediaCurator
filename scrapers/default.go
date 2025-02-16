@@ -28,6 +28,7 @@ func NewDefaultScraper(urlString string) (Scraper, error) {
 }
 
 func (s *DefaultScraper) initialize() {
+	s.collector.UserAgent = USER_AGENT
 	s.collector.OnRequest(func(r *colly.Request) {
 		s.Err = nil
 	})

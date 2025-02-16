@@ -33,7 +33,17 @@ func (task Fetch) Match() bool {
 }
 
 func (task Fetch) Invoke() string {
-	scraper, err := scrapers.NewDefaultScraper(task.Input.GetArgs()[0])
+	url, err := url.ParseRequestURI(task.Input.GetArgs()[0])
+	if err != nil {
+		return "error: " + err.Error()
+	}
+
+	constructor, ok := scrapers.ScrapersRegistry[url.Host]
+	if !ok {
+		constructor = scrapers.NewDefaultScraper
+	}
+
+	scraper, err := constructor(task.Input.GetArgs()[0])
 	if err != nil {
 		return "error: " + err.Error()
 	}

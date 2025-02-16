@@ -16,6 +16,15 @@ func getTestDataDir() (string, error) {
 	return wd + "/testdata/", nil
 }
 
+func localFileScraper() (http.RoundTripper, error) {
+	dataDir, err := getTestDataDir()
+	if err != nil {
+		return nil, err
+	}
+
+	return http.NewFileTransport(http.Dir(dataDir)), nil
+}
+
 func TestConstructors(t *testing.T) {
 	tests := []struct {
 		name           string
@@ -50,6 +59,17 @@ func TestConstructors(t *testing.T) {
 				"Title: Scientists Clone Two Black-Footed Ferrets from Frozen Tissues",
 			},
 		},
+		{
+			"BusinessWireScraper",
+			NewBusinessWireScraper,
+			"businesswire.html",
+			[]string{
+				"https://www.businesswire.com/news/home/20250120918776/en/Forum-Energy-Technologies-to-Present-at-the-Sidoti-Virtual-Micro-Cap-Conference",
+			},
+			[]string{
+				"Forum Energy Technologies to Present at the Sidoti Virtual Micro Cap Conference",
+			},
+		},
 	}
 
 	for _, test := range tests {
@@ -60,12 +80,12 @@ func TestConstructors(t *testing.T) {
 				t.Fatalf("failed to construct scraper: %s", test.name)
 			}
 
-			testData, err := getTestDataDir()
+			localTransport, err := localFileScraper() // redirects HTTP requests to read local files instead
 			if err != nil {
-				t.Fatal("failed to retrieve test data directory")
+				t.Fatalf("failed to construct scraper: %s", test.name)
 			}
 
-			scraper.SetTransport(http.NewFileTransport(http.Dir(testData)))
+			scraper.SetTransport(localTransport)
 			scraper.Scrape()
 			for _, expected := range test.anchors {
 				found := false

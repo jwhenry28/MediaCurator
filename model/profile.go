@@ -9,9 +9,10 @@ import (
 )
 
 type Profile struct {
-	Name      string `yaml:"name"`
-	Email     string `yaml:"email"`
-	Interests string `yaml:"interests"`
+	Name      string   `yaml:"name"`
+	Email     string   `yaml:"email"`
+	Interests string   `yaml:"interests"`
+	URLs      []string `yaml:"urls"`
 }
 
 func NewProfileFromYAML(filename string) (*Profile, error) {
