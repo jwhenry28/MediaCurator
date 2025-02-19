@@ -4,9 +4,7 @@ go 1.23
 
 toolchain go1.23.2
 
-require github.com/jwhenry28/LLMUtils v0.0.0
-
-replace github.com/jwhenry28/LLMUtils => ../LLMUtils
+require github.com/jwhenry28/LLMUtils v0.0.0-20250120205550-43687222bdce
 
 require (
 	github.com/aws/aws-sdk-go-v2/config v1.28.5
