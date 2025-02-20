@@ -60,7 +60,15 @@ func (s *EDGARFilingsScraper) initialize() {
 
 			// Check filing date first (5th column)
 			filingDate := e.ChildText("td:nth-child(5)")
-			if filingDate == "" || filingDate != time.Now().Format("2006-01-02") {
+			if filingDate == "" {
+				return
+			}
+			_, err := time.Parse(time.DateOnly, filingDate)
+			if err != nil {
+				return
+			}
+			today := time.Now().Format(time.DateOnly)
+			if filingDate != today {
 				return
 			}
 
